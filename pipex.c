@@ -54,6 +54,8 @@ char	*check_cmd(char *cmd, char **envp)
 	return (path);
 }
 
+//went wrong on that cmd joining, split the cmd by space first, then append only the
+//cmd not the option too
 int main(int ac, char **av, char **envp)
 {
 	int		*fd;
