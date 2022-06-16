@@ -53,7 +53,7 @@ char	*check_cmd(char *cmd, char **envp)
 		//free (*paths);
 		paths++;
 	}
-	free(paths);
+	free(path);
 }
 
 int main(int ac, char **av, char **envp)
