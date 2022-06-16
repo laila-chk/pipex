@@ -6,7 +6,7 @@
 /*   By: lchokri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 18:30:12 by lchokri           #+#    #+#             */
-/*   Updated: 2022/06/14 19:33:16 by lchokri          ###   ########.fr       */
+/*   Updated: 2022/06/16 21:16:59 by lchokri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,16 +16,6 @@
 //check if file exist
 //check if cmds exist
 //run da command
-
-void	manage_err(char *ptr, char *ptr2)
-{
-	if (ptr != NULL)
-		free(ptr);
-	if (ptr2 != NULL)
-		free(ptr);
-	perror("Error");
-	exit(EXIT_FAILURE);
-}
 
 char	*check_cmd(char *cmd, char **envp)
 {
@@ -54,6 +44,35 @@ char	*check_cmd(char *cmd, char **envp)
 	return (path);
 }
 
+void	not_accessible(char **av, char **cmd1, char **cmd2, char **envp)
+{
+	if (access(av[2], X_OK))
+	{
+		*cmd1 = ft_strjoin("/", av[2]);
+		*cmd1 = check_cmd(*cmd1, envp);
+	}
+	else
+		*cmd1 = av[2];
+	if (access(av[3], X_OK))
+	{
+		*cmd2 = ft_strjoin("/", av[3]);
+		*cmd2 = check_cmd(*cmd2, envp);
+	}
+	else
+		*cmd2 = av[3];
+}
+
+void	manage_err(char *ptr, char *ptr2)
+{
+	if (ptr != NULL)
+		free(ptr);
+	if (ptr2 != NULL)
+		free(ptr);
+	perror("Error");
+	exit(EXIT_FAILURE);
+}
+
+
 //went wrong on that cmd joining, split the cmd by space first, then append only the
 //cmd not the option too
 int main(int ac, char **av, char **envp)
@@ -71,11 +90,8 @@ int main(int ac, char **av, char **envp)
 		if ((fd[0] = open(av[4], O_RDWR | O_CREAT))== -1)
 			manage_err(NULL, NULL);
 		pipe(fd);
-		cmd1 = ft_strjoin("/", av[2]);
-		cmd2 = ft_strjoin("/", av[3]);
-		cmd1 = check_cmd(cmd1, envp);
-		cmd2 = check_cmd(cmd2, envp);
-		printf("cmd1=%s, cmd2=%s\n", cmd1, cmd2);
+		not_accessible(av, &cmd1, &cmd2, envp);
+			printf("cmd1=%s, cmd2=%s\n", cmd1, cmd2);
 		if (!cmd1 || !cmd2)
 			manage_err(cmd1, cmd2);
 		chld_pid = fork();
