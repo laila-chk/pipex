@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: lchokri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/05/12 14:06:56 by lchokri           #+#    #+#             */
-/*   Updated: 2022/05/22 20:19:42 by lchokri          ###   ########.fr       */
+/*   Created: 2021/11/16 04:18:46 by lchokri           #+#    #+#             */
+/*   Updated: 2021/11/26 03:18:04 by lchokri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,15 +89,17 @@ static char	**retptr(const char *s, char c, int *j, char **p)
 	return (p);
 }
 
-char	**ft_split(char const *s, char c, int *i)
+char	**ft_split(char const *s, char c)
 {
 	int		j;
+	int		i;
 	char	**p;
 
+	i = 0;
 	if (!s)
 		return (NULL);
-	*i = wordcount(s, c);
-	p = (char **)ft_calloc((*i + 1), sizeof(char *));
+	i = wordcount(s, c);
+	p = (char **)ft_calloc((i + 1), sizeof(char *));
 	if (!p)
 		return (NULL);
 	j = -1;

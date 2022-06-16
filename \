@@ -10,30 +10,67 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
+#include "pipex.h" 
 
 //1- split paths
 //check if file exist
 //check if cmds exist
 //run da command
 
-int	get_path(char **envp, char *cmd)
+void	manage_err(char *ptr)
 {
-	//split those paths && search for the cmd inside them
+	if (ptr != NULL)
+		free(ptr);
+	perror("Error");
+	exit(EXIT_FAILURE);
+}
+
+char	*check_cmd(char *cmd, char **envp)
+{
+	char	**paths;
+	char	**p;
+	char	*path;
+
+	p = paths;
+	path = NULL;
+	while (envp)
+	{
+		if ((ft_strncmp("PATH", *envp, 4)) == 0)
+			break;
+		envp++;
+	}
+	printf("path compared is %s\n", *envp);
+	paths = ft_split(*envp+5, ':');
+	while (*paths)
+	{
+		*paths = ft_strjoin(*paths, cmd);
+		if (access(*paths, X_OK) == 0)
+			path = ft_strdup(*paths);
+		free (*paths);
+		paths++;
+	}
+	printf("final path is : %s\n", path);
+	free(p);
+	return (path);
 }
 
 int main(int ac, char **av, char **envp)
 {
 	int		fd;
 	int		chld_pid;
+	char	*cmd1;
+//	char	*cmd2;
 
 	if (ac == 5)
 	{
 		if ((fd = open(av[1], O_RDWR))== -1)
-				perror("ERROR!");
-		//	printf("%s not found\n", av[1]);
+			manage_err(NULL);
+		printf("your fd's value is %d\n", fd);
+		cmd1 = ft_strjoin("/", av[2]);
+		cmd1 = check_cmd(cmd1, envp);
+		printf("cmd1 is : %s", cmd1);
+	//	cmd2 = check_cmd(av[3], envp);
+	//	printf("cmd2 is : %s", cmd2);
 		chld_pid = fork();
 		if (chld_pid == 0)
 		{
@@ -44,5 +81,5 @@ int main(int ac, char **av, char **envp)
 		close(fd);
 	}
 	else
-		printf("you should enter 4 argument beside the executable instead of %d", ac - 1);
+			write(2, "Error!\n Usage: ./pipex f1 cmd1 cmd2 f2\n", 41);
 }

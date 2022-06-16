@@ -10,9 +10,19 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include"libft.h"
+#include "pipex.h"
 
-char	*ft_strjoin2(char const *s1, char const *s2)
+size_t	ft_strlen(const char *s)
+{
+	size_t	i;
+
+	i = 0;
+	while (s[i] != '\0' )
+		i++;
+	return (i);
+}
+
+char	*ft_strjoin(char const *s1, char const *s2)
 {
 	char	*str;
 	size_t	i;
@@ -20,6 +30,8 @@ char	*ft_strjoin2(char const *s1, char const *s2)
 
 	j = 0;
 	i = 0;
+	if (!s1 || !s2)
+		return (NULL);
 	str = malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
 	if (str == NULL)
 		return (NULL);
@@ -34,6 +46,5 @@ char	*ft_strjoin2(char const *s1, char const *s2)
 			str[i++] = s2[j++];
 	}
 	str[i] = '\0';
-	free (s1);
 	return (str);
 }

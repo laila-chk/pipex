@@ -1,4 +1,4 @@
-src = *.c
+src = pipex.c ft_calloc.c ft_split.c ft_strdup.c  ft_strjoin.c ft_strncmp.c 
 
 obj = $(src:.c=.o)
 
