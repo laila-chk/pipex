@@ -6,16 +6,11 @@
 /*   By: lchokri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 18:30:12 by lchokri           #+#    #+#             */
-/*   Updated: 2022/06/16 21:16:59 by lchokri          ###   ########.fr       */
+/*   Updated: 2022/06/17 14:46:33 by lchokri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h" 
-
-//1- split paths
-//check if file exist
-//check if cmds exist
-//run da command
 
 char	*check_cmd(char *cmd, char **envp)
 {
@@ -46,16 +41,21 @@ char	*check_cmd(char *cmd, char **envp)
 
 void	not_accessible(char **av, char **cmd1, char **cmd2, char **envp)
 {
-	if (access(av[2], X_OK))
+	char **argv1;
+	char **argv2;
+
+	argv1 = ft_split(av[2], ' ' );
+	argv2 = ft_split(av[3], ' ' );
+	if (access(argv1[0], X_OK))
 	{
-		*cmd1 = ft_strjoin("/", av[2]);
+		*cmd1 = ft_strjoin("/", argv1[0]);
 		*cmd1 = check_cmd(*cmd1, envp);
 	}
 	else
 		*cmd1 = av[2];
-	if (access(av[3], X_OK))
+	if (access(argv2[0], X_OK))
 	{
-		*cmd2 = ft_strjoin("/", av[3]);
+		*cmd2 = ft_strjoin("/", argv2[0]);
 		*cmd2 = check_cmd(*cmd2, envp);
 	}
 	else
@@ -72,39 +72,44 @@ void	manage_err(char *ptr, char *ptr2)
 	exit(EXIT_FAILURE);
 }
 
-
-//went wrong on that cmd joining, split the cmd by space first, then append only the
-//cmd not the option too
 int main(int ac, char **av, char **envp)
 {
 	int		*fd;
 	int		chld_pid;
 	char	*cmd1;
 	char	*cmd2;
-// pipefd[0] for read end of pipe, pipefd[1] write end of pipe
+	char	**argv1;
+	char	**argv2;
+
+	argv1 = ft_split(av[1], ' ' );
+	argv2 = ft_split(av[4], ' ' );
 	if (ac == 5)
 	{
 		fd = malloc(2 * sizeof(int));
-		if ((fd[1] = open(av[1], O_RDONLY))== -1)
+		if ((fd[0] = open(av[1], O_RDONLY))== -1)
 			manage_err(NULL, NULL);
-		if ((fd[0] = open(av[4], O_RDWR | O_CREAT))== -1)
+		if ((fd[1] = open(av[4], O_RDWR | O_CREAT, 0666))== -1)
 			manage_err(NULL, NULL);
+		not_accessible(av, &argv1[0], &argv2[0], envp);
+		if (!argv1[0])
+			manage_err(NULL, NULL);
+		if (!argv2[0])
+			manage_err(NULL, NULL);
+		dup2(fd[1], 1);
+		dup2(fd[0], 0);
 		pipe(fd);
-		not_accessible(av, &cmd1, &cmd2, envp);
-			printf("cmd1=%s, cmd2=%s\n", cmd1, cmd2);
-		if (!cmd1 || !cmd2)
-			manage_err(cmd1, cmd2);
 		chld_pid = fork();
 		if (chld_pid > 0)
 		{
-			printf("child problem");
-			execve(cmd1, &cmd1, envp);
+			execve(argv2[0], argv2, envp);
+			execve(argv1[0], argv1, envp);
+//			close()
 		}
 		else
 		{
-			execve(cmd2, &cmd2, envp);
 			wait(NULL);
 		}
+		printf("we made it here\n");
 	}
 	else
 			write(2, "Error!\nUsage: ./pipex f1 cmd1 cmd2 f2\n", 41);
