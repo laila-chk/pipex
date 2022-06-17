@@ -1,7 +1,7 @@
-       1       2      10
-
-akefile
+56
+Makefile
 README.md
+f
 fl
 ft_calloc.c
 ft_calloc.o
@@ -13,10 +13,10 @@ ft_strjoin.c
 ft_strjoin.o
 ft_strncmp.c
 ft_strncmp.o
-omag
-omagaaaaaa
-ops
+out
+output
 pipex
 pipex.c
 pipex.h
 pipex.o
+       1       2      10

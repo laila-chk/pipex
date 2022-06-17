@@ -6,7 +6,7 @@
 /*   By: lchokri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 18:30:12 by lchokri           #+#    #+#             */
-/*   Updated: 2022/06/17 14:46:33 by lchokri          ###   ########.fr       */
+/*   Updated: 2022/06/17 18:39:46 by lchokri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ void	manage_err(char *ptr, char *ptr2)
 	perror("Error");
 	exit(EXIT_FAILURE);
 }
-
+//pipe writes to fd[1]
 int main(int ac, char **av, char **envp)
 {
 	int		*fd;
@@ -88,7 +88,7 @@ int main(int ac, char **av, char **envp)
 		fd = malloc(2 * sizeof(int));
 		if ((fd[0] = open(av[1], O_RDONLY))== -1)
 			manage_err(NULL, NULL);
-		if ((fd[1] = open(av[4], O_RDWR | O_CREAT, 0666))== -1)
+		if ((fd[1] = open(av[4], O_RDWR | O_TRUNC | O_CREAT, 0666))== -1)
 			manage_err(NULL, NULL);
 		not_accessible(av, &argv1[0], &argv2[0], envp);
 		if (!argv1[0])
@@ -101,15 +101,17 @@ int main(int ac, char **av, char **envp)
 		chld_pid = fork();
 		if (chld_pid > 0)
 		{
-			execve(argv2[0], argv2, envp);
+			close(fd[0]);
 			execve(argv1[0], argv1, envp);
-//			close()
 		}
-		else
+		close(fd[1]);
+		wait(NULL);
+		chld_pid = fork();
+		if (chld_pid > 0)
 		{
-			wait(NULL);
+			close(fd[1]);
+			execve(argv2[0], argv2, envp);
 		}
-		printf("we made it here\n");
 	}
 	else
 			write(2, "Error!\nUsage: ./pipex f1 cmd1 cmd2 f2\n", 41);
