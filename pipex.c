@@ -95,24 +95,33 @@ int main(int ac, char **av, char **envp)
 			manage_err(NULL, NULL);
 		if (!argv2[0])
 			manage_err(NULL, NULL);
-		dup2(fd[1], 1);
-		dup2(fd[0], 0);
 		pipe(fd);
 		chld_pid = fork();
-		if (chld_pid > 0)
+		if (chld_pid == 0)
 		{
-			close(fd[0]);
+				printf("1\n");
+			dup2(fd[0], 0);
+			dup2(0, 1);
 			execve(argv1[0], argv1, envp);
 		}
-		close(fd[1]);
-		wait(NULL);
+		else
+			{
+				wait(NULL);
+			}
 		chld_pid = fork();
-		if (chld_pid > 0)
+		if (chld_pid == 0)
 		{
-			close(fd[1]);
+			dup2(fd[0], 0);
+			dup2(fd[1], 1);
 			execve(argv2[0], argv2, envp);
+			printf("we're in child 2\n");
+		}
+		else
+		{
+			wait(NULL);
+			printf("we're back to parent 2\n");
 		}
 	}
 	else
-			write(2, "Error!\nUsage: ./pipex f1 cmd1 cmd2 f2\n", 41);
+		write(2, "Error!\nUsage: ./pipex f1 cmd1 cmd2 f2\n", 41);
 }
