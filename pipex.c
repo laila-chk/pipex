@@ -117,7 +117,7 @@ int main(int ac, char **av, char **envp)
 		{
 			close(end[1]);
 			dup2(end[0], 0);
-			dup2(fd[1], 1);
+			dup2(1, fd[1]);
 			execve(argv2[0], argv2, envp);
 			printf("we're in child 2\n");
 		}
