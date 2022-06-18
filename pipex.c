@@ -75,14 +75,17 @@ void	manage_err(char *ptr, char *ptr2)
 int main(int ac, char **av, char **envp)
 {
 	int		*fd;
+	int		*fd2;
+	int		*end;
 	int		chld_pid;
 	char	*cmd1;
 	char	*cmd2;
 	char	**argv1;
 	char	**argv2;
 
-	argv1 = ft_split(av[1], ' ' );
-	argv2 = ft_split(av[4], ' ' );
+	end = malloc(2 * sizeof(int));
+	argv1 = ft_split(av[2], ' ' );
+	argv2 = ft_split(av[3], ' ' );
 	if (ac == 5)
 	{
 		fd = malloc(2 * sizeof(int));
@@ -95,23 +98,25 @@ int main(int ac, char **av, char **envp)
 			manage_err(NULL, NULL);
 		if (!argv2[0])
 			manage_err(NULL, NULL);
-		pipe(fd);
+		printf("%s\n", argv1[0]);
+		pipe(end);
 		chld_pid = fork();
 		if (chld_pid == 0)
 		{
-				printf("1\n");
+			close(end[0]);
 			dup2(fd[0], 0);
-			dup2(0, 1);
+			dup2(end[1], 1);
 			execve(argv1[0], argv1, envp);
+		
 		}
 		else
-			{
-				wait(NULL);
-			}
+			close(end[1]);
+			wait(NULL);
 		chld_pid = fork();
 		if (chld_pid == 0)
 		{
-			dup2(fd[0], 0);
+			close(end[1]);
+			dup2(end[0], 0);
 			dup2(fd[1], 1);
 			execve(argv2[0], argv2, envp);
 			printf("we're in child 2\n");
@@ -121,6 +126,7 @@ int main(int ac, char **av, char **envp)
 			wait(NULL);
 			printf("we're back to parent 2\n");
 		}
+			close(fd2[0]);
 	}
 	else
 		write(2, "Error!\nUsage: ./pipex f1 cmd1 cmd2 f2\n", 41);
